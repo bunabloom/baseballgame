@@ -17,6 +17,8 @@ class FlowChart {
     
     var printData = PrintData()
     
+    
+    
     // 클래스명 이름 /객체 타입 명사 /함수->동사 객체->명사 식으로 /repsitory /네이밍
     // 기능 과 속성을 구분하고 /
     // View -> Input/output
@@ -26,6 +28,11 @@ class FlowChart {
     // view 와 data 의 분리    굿!
     
     
+    func start() {
+        makeRandomNumber()
+        
+    }
+    
     func printResult (_ count:Int) {
         guard count != 0 else{
             printData.errorM()
@@ -33,7 +40,7 @@ class FlowChart {
             return menuProcess()
         }
         for i in 0...(count - 1) {
-            print("\(gameCounts[i])회차 시도횟수는\(tryAnswers[0])번 입니다. ")
+            print("\(gameCounts[i])회차 시도횟수는\(tryAnswers[i])번 입니다. ")
         }
         
         
@@ -66,15 +73,17 @@ class FlowChart {
         func logic1() {
             gameCount += 1
             gameCounts.append(gameCount)
-            print("\(gameCount)회차 게임시작합니다!")
+            print("\(gameCount)회차 게임시작합니다!\n")
             
-            var computedAnwer = computedAnswer() //컴퓨터 숫자 담기
+            let randomNum = makeRandomNumber() //컴퓨터 숫자 담기
             
             while true {
-                var UserNumber = userAnswerNum() // 3개의 숫자 입력 받아 검증하기 올바른 숫자인지확인후 내가만든답 내보내기
-                if compareAwithB(computedAnwer,UserNumber) == "정답!" { // 컴퓨터의 숫자와 내 숫자 비교하기
-                    break
-                }
+                
+                tryAnswer += 1
+                print("\(tryAnswer)번째 시도 \n")
+                let UserNumber = makeUserAnswer() // 3개의 숫자 입력 받아 검증하기 올바른 숫자인지확인후 내가만든답 내보내기
+                
+                if compareAwithB(randomNum,UserNumber) { break }
                 
             }
             //카운트 추가
@@ -105,58 +114,67 @@ class FlowChart {
     }
     
     //--------------------------------------------------------------------------------------------------------------
-    func compareAwithB (_ computedAnswer:[Int],_ userAnswer:[Int])->String {
+    func compareAwithB (_ computedAnswer:[Int],_ userAnswer:[Int])->Bool {
+        //enumerated 써서 변경하기
         
         var strike = 0
         var ball = 0
-        var result = ""
+        var message = ""
         
-        for i in 0...2 {
-            for j in 0...2{
-                if computedAnswer[i] == userAnswer[i] && i == j {
-                    strike += 1
-                }else if computedAnswer[i] == userAnswer[j] && i != j {
-                    ball += 1
-                }
+        for (index, number) in userAnswer.enumerated() {
+            if number == computedAnswer[index] {
+                strike += 1
+                continue
+            }
+            if computedAnswer.contains(number) {
+                ball += 1
+                continue
             }
             
         }
-        result = strike == 0 ? ( ball == 0 ? "값이 없습니다.\n" : "\(ball)볼\n" ) : ( ball == 0 ? "\(strike)스트라이크\n" : "\(strike)스트라이크 \(ball)볼\n")
-        tryAnswer += 1
-        if strike == 3 { result = "정답!" ; tryAnswer += 1 }
-        print(result)
         
-        return result
+        message = strike == 0 ? ( ball == 0 ? "값이 없습니다.\n" : "\(ball)볼\n" ) : ( ball == 0 ? "\(strike)스트라이크\n" : "\(strike)스트라이크 \(ball)볼\n")
+        
+        
+        if strike == 3 { message = "정답!"  }
+        
+        print(message)
+        print("\n")
+        
+        return true
     }
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    func userAnswerNum ()->[Int]{
-        var result :[Int]
+  
+    
+    
+    func makeUserAnswer ()->[Int]{
+        
         while true {
-            print("여기에 세개의 숫자를 입력해주세요 : ",terminator:"")
-            let userAnswer = readLine()!
             
-            let userAnswer2 = userAnswer.map{ Int(String($0))! }
-            if Int(userAnswer) == nil || userAnswer.count != 3 || checkOverlap(userAnswer) || userAnswer2[0] == 0 {
-                printData.errorM()
-                print("잘못된 입력입니다. 숫자는 3개여야하고 숫자외에는 입력불가능하며 중복된숫자를 입력해선 안됩니다.")
+            print("여기에 세개의 숫자를 입력해주세요 : ",terminator:"")
+            let userAnswer = readLine() ?? ""
+            print("\n")
+            let result = userAnswer.compactMap{ Int(String($0)) }
+            
+            
+            if Int(userAnswer) == nil { printData.errorM(); print("숫자만 입력 가능합니다.");tryAnswer += 1; continue }
+            if userAnswer.count != 3 { printData.errorM(); print("3개만 입력가능합니다.");tryAnswer += 1; continue }
+            if Set(userAnswer).count != userAnswer.count {printData.errorM(); print("중복숫자가 있습니다."); tryAnswer += 1 ; continue }
+            if result[0] == 0 { printData.errorM(); print("앞자리에는 0이 올수 없습니다."); tryAnswer += 1; continue }
                 
-            }else {
-                result = userAnswer2
-                return result
-            }
+            print(tryAnswer)
+            return result
+            
         }
     }
     //------------------------------------ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    func checkOverlap(_ input: String) -> Bool { // 세트로 중복 피하기
-        let set = Set(input)
-        return set.count != input.count
-    }
+    
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    func computedAnswer ()->[Int] { // 랜덤숫자 3가지
-        let temp : [Int] = Array(0...9).shuffled()
-        let resultArr = temp[0] == 0 ? Array(temp[1...3]) : Array(temp[0...2])
-        print(resultArr)
-        return resultArr
+    func makeRandomNumber () -> [Int] { // 랜덤숫자 3가지
+        var randomNumber = Array((0...9).shuffled().prefix(4))
+        randomNumber = randomNumber[0] == 0 ?  Array(randomNumber[0...2]) :  Array(randomNumber.prefix(3))
+        print(randomNumber)
+        return randomNumber
     }
 }
 
