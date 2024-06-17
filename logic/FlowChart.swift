@@ -28,27 +28,13 @@ class FlowChart {
     // view 와 data 의 분리    굿!
     
     
-    func start() {
-        makeRandomNumber()
-        
-    }
     
-    func printResult (_ count:Int) {
-        guard count != 0 else{
-            printData.errorM()
-            print("게임이력이 없습니다!")
-            return menuProcess()
-        }
-        for i in 0...(count - 1) {
-            print("\(gameCounts[i])회차 시도횟수는\(tryAnswers[i])번 입니다. ")
-        }
-        
-        
-    }
+    
+    
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-----------------------------------------------------------------------------------------------
-    func menuProcess () { // case 따라서 게임 할건지 정하는것
+    func startGame () { // case 따라서 게임 할건지 정하는것
         
-        printData.welcomeM()
+        
         printData.whichOneDoYouWant()
         
         print("이곳에 입력해주세요 : ",terminator:"")
@@ -57,94 +43,91 @@ class FlowChart {
         switch input {
             
         case "1":
-            logic1()
+            playGame()
         case "2":
-            logic2()
+            showRecord()
         case "3":
-            logic3()
+            exitGame()
         default :
             printData.errorM()
             print("잘못된 접근입니다.")
-            menuProcess()
+            startGame()
             
         }
-        //---------------------------------------------------------------------------------------------------ㅡㅡㅡㅡㅡㅡㅡ---------
+    }
+    //---------------------------------------------------------------------------------------------------ㅡㅡㅡㅡㅡㅡㅡ---------
+    
+    func playGame() {
+        gameCount += 1
+        gameCounts.append(gameCount)
+        print("\(gameCount)회차 게임시작합니다!\n")
         
-        func logic1() {
-            gameCount += 1
-            gameCounts.append(gameCount)
-            print("\(gameCount)회차 게임시작합니다!\n")
+        let randomNum = makeRandomNumber() //컴퓨터 숫자 담기
+        
+        while true {
             
-            let randomNum = makeRandomNumber() //컴퓨터 숫자 담기
+            tryAnswer += 1
+            print("\(tryAnswer)번째 시도 \n")
+            let UserNumber = makeUserAnswer() // 3개의 숫자 입력 받아 검증하기 올바른 숫자인지확인후 내가만든답 내보내기
             
-            while true {
-                
-                tryAnswer += 1
-                print("\(tryAnswer)번째 시도 \n")
-                let UserNumber = makeUserAnswer() // 3개의 숫자 입력 받아 검증하기 올바른 숫자인지확인후 내가만든답 내보내기
-                
-                if compareAwithB(randomNum,UserNumber) { break }
-                
-            }
-            //카운트 추가
+            if compareNum(randomNum,UserNumber) { break }
             
-            
-            
-            tryAnswers.append(tryAnswer)
-            tryAnswer = 0 //시도횟수 초기화
-            menuProcess() //게임 재시작
         }
         
-        
-        //------------------------------------------------------------------------------------------------------------------
-        func logic2 () {
-            printData.recordM()
-            print("게임정보를 조회합니다.")
-            printResult(gameCounts.count)
-            
-            menuProcess() //게임 재시작
-        }
-        
-        //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        
-        func logic3 () {
-            printData.finshM()
-            print("게임을 종료합니다.")
-        }
+        tryAnswers.append(tryAnswer)
+        tryAnswer = 0 //시도횟수 초기화
+        startGame() //게임 재시작
     }
     
-    //--------------------------------------------------------------------------------------------------------------
-    func compareAwithB (_ computedAnswer:[Int],_ userAnswer:[Int])->Bool {
-        //enumerated 써서 변경하기
+    
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    func showRecord () {
+        printData.recordM()
+        print("게임정보를 조회합니다.")
+        showRecordData(gameCounts.count)
         
-        var strike = 0
-        var ball = 0
-        var message = ""
-        
-        for (index, number) in userAnswer.enumerated() {
-            if number == computedAnswer[index] {
-                strike += 1
-                continue
-            }
-            if computedAnswer.contains(number) {
-                ball += 1
-                continue
-            }
-            
+        startGame() //게임 재시작
+    }
+    
+    func showRecordData (_ count:Int) {
+        guard count != 0 else{
+            printData.errorM()
+            print("게임이력이 없습니다!")
+            return startGame()
+        }
+        for i in 0...(count - 1) {
+            print("\(gameCounts[i])회차 시도횟수는\(tryAnswers[i])번 입니다. ")
         }
         
-        message = strike == 0 ? ( ball == 0 ? "값이 없습니다.\n" : "\(ball)볼\n" ) : ( ball == 0 ? "\(strike)스트라이크\n" : "\(strike)스트라이크 \(ball)볼\n")
         
+    }
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    
+    func exitGame () {
         
-        if strike == 3 { message = "정답!"  }
+        print("게임을 종료합니다.")
+    }
+    
+    
+    //--------------------------------------------------------------------------------------------------------------
+    func compareNum (_ computedAnswer:[Int],_ userAnswer:[Int])->Bool {
+        var strike = 0
+        var ball = 0
         
-        print(message)
-        print("\n")
-        
-        return true
+        for (index, number) in userAnswer.enumerated() {
+            if number == computedAnswer[index] { strike += 1; continue }
+            if computedAnswer.contains(number) { ball += 1; continue }
+        }
+        if strike == 3 { print("정답!\n"); return true }
+        else {
+            strike == 0 ? ( ball == 0 ? print("값이 없습니다.\n") : print("\(ball)볼\n") ) : ( ball == 0 ? print("\(strike)스트라이크\n") : print("\(strike)스트라이크 \(ball)볼\n"))
+            
+            print("\n")
+            return false
+        }
     }
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-  
+    
     
     
     func makeUserAnswer ()->[Int]{
@@ -161,9 +144,10 @@ class FlowChart {
             if userAnswer.count != 3 { printData.errorM(); print("3개만 입력가능합니다.");tryAnswer += 1; continue }
             if Set(userAnswer).count != userAnswer.count {printData.errorM(); print("중복숫자가 있습니다."); tryAnswer += 1 ; continue }
             if result[0] == 0 { printData.errorM(); print("앞자리에는 0이 올수 없습니다."); tryAnswer += 1; continue }
-                
-            print(tryAnswer)
+            
+            
             return result
+            
             
         }
     }
@@ -171,29 +155,15 @@ class FlowChart {
     
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     func makeRandomNumber () -> [Int] { // 랜덤숫자 3가지
-        var randomNumber = Array((0...9).shuffled().prefix(4))
-        randomNumber = randomNumber[0] == 0 ?  Array(randomNumber[0...2]) :  Array(randomNumber.prefix(3))
+        var randomNumber = Array((0...9).shuffled())
+        randomNumber = randomNumber[0] != 0 ?  Array(randomNumber[0...2]) :  Array(randomNumber[1...3])
         print(randomNumber)
         return randomNumber
     }
+    
+    
+    
+    
+    
+    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

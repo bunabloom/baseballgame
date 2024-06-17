@@ -9,9 +9,11 @@ import Foundation
 
 
 
-
+let message = PrintData()
 let UserPlayer = FlowChart()
-UserPlayer.menuProcess()
+message.welcomeM()
+UserPlayer.startGame()
+message.finshM()
 
     
 
