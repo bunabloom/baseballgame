@@ -31,28 +31,18 @@ class FlowChart {
     
     
     
-    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-----------------------------------------------------------------------------------------------
+    
     func startGame () { // case 따라서 게임 할건지 정하는것
-        
-        
+
         printData.whichOneDoYouWant()
-        
         print("이곳에 입력해주세요 : ",terminator:"")
         let input = readLine()!
         
         switch input {
-            
-        case "1":
-            playGame()
-        case "2":
-            showRecord()
-        case "3":
-            exitGame()
-        default :
-            printData.errorM()
-            print("잘못된 접근입니다.")
-            startGame()
-            
+        case "1": playGame()
+        case "2": showRecord()
+        case "3": exitGame()
+        default : print("잘못된 접근입니다."); startGame()
         }
     }
     //---------------------------------------------------------------------------------------------------ㅡㅡㅡㅡㅡㅡㅡ---------
@@ -65,17 +55,14 @@ class FlowChart {
         let randomNum = makeRandomNumber() //컴퓨터 숫자 담기
         
         while true {
-            
             tryAnswer += 1
             print("\(tryAnswer)번째 시도 \n")
             let UserNumber = makeUserAnswer() // 3개의 숫자 입력 받아 검증하기 올바른 숫자인지확인후 내가만든답 내보내기
-            
             if compareNum(randomNum,UserNumber) { break }
-            
-        }
-        
+            }
         tryAnswers.append(tryAnswer)
         tryAnswer = 0 //시도횟수 초기화
+        
         startGame() //게임 재시작
     }
     
@@ -93,6 +80,7 @@ class FlowChart {
         guard count != 0 else{
             printData.errorM()
             print("게임이력이 없습니다!")
+            
             return startGame()
         }
         for i in 0...(count - 1) {
@@ -104,7 +92,6 @@ class FlowChart {
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     
     func exitGame () {
-        
         print("게임을 종료합니다.")
     }
     
